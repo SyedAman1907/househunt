@@ -1,0 +1,12 @@
+{
+  "name": "househunt-root",
+  "version": "1.0.0",
+  "scripts": {
+    "backend": "npm start --prefix \"househunt backend\"",
+    "frontend": "npm run dev --prefix frontend",
+    "start": "npx concurrently \"npm run backend\" \"npm run frontend\""
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
