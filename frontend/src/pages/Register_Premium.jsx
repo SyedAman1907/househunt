@@ -23,7 +23,9 @@ const Register_Premium = () => {
             navigate('/');
             window.location.reload();
         } catch (err) {
-            setError(err.response?.data?.msg || 'Registration failed');
+            console.error(err);
+            const errorMessage = err.response?.data?.msg || err.message || 'Registration failed (Unknown Error)';
+            setError(errorMessage);
         }
     };
 
