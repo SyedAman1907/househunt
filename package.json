@@ -2,11 +2,17 @@
   "name": "househunt-root",
   "version": "1.0.0",
   "scripts": {
-    "backend": "npm start --prefix backend",
-    "frontend": "npm run dev --prefix frontend",
-    "start": "npx concurrently \"npm run backend\" \"npm run frontend\""
+    "start": "npx concurrently \"node api/server.js\" \"npm run dev --prefix frontend\""
   },
   "dependencies": {
-    "concurrently": "^9.1.2"
+    "bcryptjs": "^3.0.3",
+    "concurrently": "^9.2.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.1.5",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.13"
   }
 }
