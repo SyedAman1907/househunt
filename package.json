@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "backend": "node api/server.js",
+    "backend": "node api/server.js",
+    "build": "cd frontend && npm install && npm run build",
     "start": "npx concurrently \"node api/server.js\" \"npm run dev --prefix frontend\""
   },
   "dependencies": {
