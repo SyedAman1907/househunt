@@ -1,15 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar_Premium';
-import Home from './pages/Home_Premium';
-import Login from './pages/Login_Premium';
-import Register from './pages/Register_Premium';
-import PropertyDetails from './pages/PropertyDetails_Premium';
-import OwnerDashboard from './pages/OwnerDashboard_Premium';
-import AdminDashboard from './pages/AdminDashboard_Premium';
-import AdminLogin from './pages/AdminLogin_Premium';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
+import Home from './views/Home_Premium';
+import Login from './views/Login_Premium';
+import Register from './views/Register_Premium';
+import PropertyDetails from './views/PropertyDetails_Premium';
+import OwnerDashboard from './views/OwnerDashboard_Premium';
+import AdminDashboard from './views/AdminDashboard_Premium';
+import AdminLogin from './views/AdminLogin_Premium';
+import ForgotPassword from './views/ForgotPassword';
+import ResetPassword from './views/ResetPassword';
 
 function App() {
   return (

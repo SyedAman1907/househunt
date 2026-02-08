@@ -1,0 +1,12 @@
+househunt backend
+node_modules
+.git
+backend/node_modules
+frontend/node_modules
+dist
+frontend/dist
+.env
+frontend/.env
+README.md
+start_app.bat
+test_write.txt
