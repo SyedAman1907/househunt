@@ -18,7 +18,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Serve u
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/properties', require('./routes/propertyRoutes_new'));
 app.use('/api/bookings', require('./routes/bookingRoutes'));
-app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes_v2'));
 
 // Default Route
 app.get('/', (req, res) => res.send('API Running'));
