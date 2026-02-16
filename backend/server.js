@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+require('dotenv').config();
 
 const app = express();
 
@@ -23,10 +23,8 @@ app.use('/api/admin', require('./routes/adminRoutes_v2'));
 // Default Route
 app.get('/', (req, res) => res.send('API Running'));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
-if (require.main === module) {
-    app.listen(PORT, "0.0.0.0", () => console.log(`Server started on port ${PORT}`));
-}
+app.listen(PORT, "0.0.0.0", () => console.log(`Server started on port ${PORT}`));
 
 module.exports = app;
