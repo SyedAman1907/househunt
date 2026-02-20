@@ -9,6 +9,18 @@ const Home_Premium = () => {
     const [filters, setFilters] = useState({ location: '', maxPrice: '' });
     const navigate = useNavigate();
 
+    const getImageUrl = (url) => {
+        if (!url) return null;
+        if (url.startsWith('http')) {
+            // Fix legacy local URLs if running in a different environment
+            if (url.includes('localhost:5000/uploads/')) {
+                return `/uploads/${url.split('/uploads/')[1]}`;
+            }
+            return url;
+        }
+        return `/uploads/${url}`;
+    };
+
     const fetchProperties = async () => {
         setLoading(true);
         try {
@@ -108,7 +120,7 @@ const Home_Premium = () => {
                                     <Card.Img 
                                         variant="top" 
                                         className="hover-zoom h-100 w-100"
-                                        src={property.images?.[0] || defaultImages[index % defaultImages.length]} 
+                                        src={getImageUrl(property.images?.[0]) || defaultImages[index % defaultImages.length]} 
                                         style={{ objectFit: 'cover' }} 
                                     />
                                     <div style={{

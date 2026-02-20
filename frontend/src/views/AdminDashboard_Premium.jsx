@@ -20,6 +20,18 @@ const AdminDashboard_Premium = () => {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user'));
 
+    const getImageUrl = (url) => {
+        if (!url) return null;
+        if (typeof url !== 'string') return null;
+        if (url.startsWith('http')) {
+            if (url.includes('localhost:5000/uploads/')) {
+                return `/uploads/${url.split('/uploads/')[1]}`;
+            }
+            return url;
+        }
+        return `/uploads/${url}`;
+    };
+
     useEffect(() => {
         if (!user || (user.role !== 'admin' && user.role !== 'subadmin')) {
             navigate('/admin-login');
@@ -223,10 +235,10 @@ const AdminDashboard_Premium = () => {
                                             <td>
                                                 {o.image ? (
                                                     <img 
-                                                        src={`${api.defaults.baseURL.replace('/api', '')}/uploads/${o.image}`} 
+                                                        src={getImageUrl(o.image)} 
                                                         alt="Proof" 
                                                         style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px', cursor: 'pointer' }}
-                                                        onClick={() => window.open(`${api.defaults.baseURL.replace('/api', '')}/uploads/${o.image}`, '_blank')}
+                                                        onClick={() => window.open(getImageUrl(o.image), '_blank')}
                                                     />
                                                 ) : <span className="text-muted small">NO IMAGE</span>}
                                             </td>

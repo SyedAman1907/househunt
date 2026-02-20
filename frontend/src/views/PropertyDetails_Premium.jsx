@@ -11,6 +11,17 @@ const PropertyDetails_Premium = () => {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user'));
 
+    const getImageUrl = (url) => {
+        if (!url) return null;
+        if (url.startsWith('http')) {
+            if (url.includes('localhost:5000/uploads/')) {
+                return `/uploads/${url.split('/uploads/')[1]}`;
+            }
+            return url;
+        }
+        return `/uploads/${url}`;
+    };
+
     useEffect(() => {
         const fetchProperty = async () => {
             try {
@@ -47,7 +58,7 @@ const PropertyDetails_Premium = () => {
                     <Col lg={8}>
                         <div className="glass-card p-2 floating mb-4" style={{ borderRadius: '32px' }}>
                             <img 
-                                src={property.images[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80'} 
+                                src={getImageUrl(property.images[0]) || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80'} 
                                 className="img-fluid w-100" 
                                 style={{ borderRadius: '28px', maxHeight: '550px', objectFit: 'cover' }}
                                 alt={property.title}
