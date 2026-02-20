@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   isApproved: { type: Boolean, default: false },
   mobile: String,
   address: String,
+  image: String,
   otp: String,
   otpExpire: Date,
   resetPasswordToken: String,

@@ -208,8 +208,11 @@ const AdminDashboard_Premium = () => {
                             <Table variant="dark" hover responsive className="bg-transparent mt-3 align-middle">
                                 <thead>
                                     <tr>
+                                        <th>PROOF</th>
                                         <th>IDENTIFIER</th>
                                         <th>NAME</th>
+                                        <th>MOBILE</th>
+                                        <th>ADDRESS</th>
                                         <th>REGISTERED</th>
                                         <th>ACTIONS</th>
                                     </tr>
@@ -217,8 +220,20 @@ const AdminDashboard_Premium = () => {
                                 <tbody>
                                     {owners.map(o => (
                                         <tr key={o._id} className="reveal-stagger">
+                                            <td>
+                                                {o.image ? (
+                                                    <img 
+                                                        src={`${api.defaults.baseURL.replace('/api', '')}/uploads/${o.image}`} 
+                                                        alt="Proof" 
+                                                        style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px', cursor: 'pointer' }}
+                                                        onClick={() => window.open(`${api.defaults.baseURL.replace('/api', '')}/uploads/${o.image}`, '_blank')}
+                                                    />
+                                                ) : <span className="text-muted small">NO IMAGE</span>}
+                                            </td>
                                             <td className="small text-muted">{o.email}</td>
                                             <td className="fw-bold text-white">{o.name || 'ANONYMOUS'}</td>
+                                            <td className="small text-info">{o.mobile || 'N/A'}</td>
+                                            <td className="small text-muted">{o.address || 'N/A'}</td>
                                             <td className="small text-muted">{formatDate(o.createdAt)}</td>
                                             <td>
                                                 <div className="d-flex gap-2">
@@ -239,7 +254,7 @@ const AdminDashboard_Premium = () => {
                                             </td>
                                         </tr>
                                     ))}
-                                    {owners.length === 0 && <tr><td colSpan="4" className="text-center py-5 text-muted h6">QUEUE CLEAR</td></tr>}
+                                    {owners.length === 0 && <tr><td colSpan="7" className="text-center py-5 text-muted h6">QUEUE CLEAR</td></tr>}
                                 </tbody>
                             </Table>
                         </Tab>

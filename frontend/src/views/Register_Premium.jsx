@@ -5,19 +5,30 @@ import api from '../api/axiosConfig';
 
 const Register_Premium = () => {
     const [formData, setFormData] = useState({
-        email: '', password: '', role: 'renter', mobile: '', address: ''
+        email: '', password: '', role: 'renter', mobile: '', address: '', name: ''
     });
+    const [image, setImage] = useState(null);
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        if (e.target.name === 'image') {
+            setImage(e.target.files[0]);
+        } else {
+            setFormData({ ...formData, [e.target.name]: e.target.value });
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await api.post('/auth/register', formData);
+            const data = new FormData();
+            Object.keys(formData).forEach(key => data.append(key, formData[key]));
+            if (image) data.append('image', image);
+
+            const res = await api.post('/auth/register', data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
             navigate('/');
@@ -39,17 +50,22 @@ const Register_Premium = () => {
                         <Form onSubmit={handleSubmit}>
                             <Row>
                                 <Col md={formData.role === 'owner' ? 6 : 12}>
-                                    <Form.Control name="email" type="email" required placeholder="PRIMARY EMAIL" className="p-3 mb-4" onChange={handleChange} />
-                                    <Form.Control name="password" type="password" required placeholder="SECRET KEY" className="p-3 mb-4" onChange={handleChange} />
-                                    <Form.Select name="role" className="p-3 mb-4 text-center fw-bold" onChange={handleChange}>
+                                    <Form.Control name="name" type="text" required placeholder="FULL NAME" className="p-3 mb-4" value={formData.name} onChange={handleChange} />
+                                    <Form.Control name="email" type="email" required placeholder="PRIMARY EMAIL" className="p-3 mb-4" value={formData.email} onChange={handleChange} />
+                                    <Form.Control name="password" type="password" required placeholder="SECRET KEY" className="p-3 mb-4" value={formData.password} onChange={handleChange} />
+                                    <Form.Select name="role" className="p-3 mb-4 text-center fw-bold" value={formData.role} onChange={handleChange}>
                                         <option value="renter">CITIZEN (RENTER)</option>
                                         <option value="owner">TRUSTEE (OWNER)</option>
                                     </Form.Select>
                                 </Col>
                                 {formData.role === 'owner' && (
                                     <Col md={6}>
-                                        <Form.Control name="mobile" type="text" placeholder="COMMS NUMBER" className="p-3 mb-4" onChange={handleChange} />
-                                        <Form.Control name="address" type="text" placeholder="BASE ADDRESS" className="p-3 mb-4" onChange={handleChange} />
+                                        <Form.Control name="mobile" type="text" placeholder="COMMS NUMBER" className="p-3 mb-4" value={formData.mobile} onChange={handleChange} />
+                                        <Form.Control name="address" type="text" placeholder="BASE ADDRESS" className="p-3 mb-4" value={formData.address} onChange={handleChange} />
+                                        <div className="mb-4">
+                                            <label className="text-muted small mb-2 d-block ms-1">IDENTITY PROOF (IMAGE)</label>
+                                            <Form.Control name="image" type="file" required className="p-3" onChange={handleChange} accept="image/*" />
+                                        </div>
                                     </Col>
                                 )}
                             </Row>
