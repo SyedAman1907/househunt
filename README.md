@@ -1,5 +1,5 @@
 # HouseHunt App
-  Visit here  : https://househunt-orpin.vercel.app/
+  Visit here  : https://amanjavya-househunt.vercel.app/
 
 A full-stack Rental House application built with the MERN stack (MongoDB, Express, React, Node.js).
 
