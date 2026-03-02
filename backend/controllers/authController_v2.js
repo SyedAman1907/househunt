@@ -10,10 +10,11 @@ const getBaseUrl = (req) => `${req.protocol}://${req.get('host')}`;
 exports.register = async (req, res) => {
     try {
         const { email, password, role, name, mobile, address } = req.body;
-        console.log("Registration attempt with data:", { email, role, name });
+        console.log("Registration attempt with data:", { email, role, name, hasImage: !!req.file });
 
         // Basic validation
         if (!email || !password || !role || !name) {
+            console.warn("Missing required fields:", { email: !!email, password: !!password, role: !!role, name: !!name });
             return res.status(400).json({ msg: 'Email, password, role and name are required' });
         }
 
@@ -23,7 +24,7 @@ exports.register = async (req, res) => {
         // Check if user exists
         let user = await User.findOne({ email: normalizedEmail });
         if (user) {
-            console.log("Match found in database for:", normalizedEmail);
+            console.log("User already exists for:", normalizedEmail);
             return res.status(400).json({ msg: 'User already exists' });
         }
 
@@ -37,14 +38,16 @@ exports.register = async (req, res) => {
             email: email.toLowerCase().trim(),
             password: hashedPassword,
             role, 
-            mobile,
-            address,
+            mobile: mobile || '',
+            address: address || '',
             // store filename only; route will build URL when serving
             image: req.file ? req.file.filename : null,
             isApproved: role === 'owner' ? false : true // Owners need approval
         });
 
+        console.log("Saving user to database...");
         await user.save();
+        console.log("User saved successfully:", user._id);
 
         const payload = { user: { id: user.id, role: user.role } };
         const secret = process.env.JWT_SECRET;
@@ -56,6 +59,7 @@ exports.register = async (req, res) => {
         let token;
         try {
             token = jwt.sign(payload, secret, { expiresIn: '1d' });
+            console.log("JWT token generated successfully");
         } catch (tokErr) {
             console.error('Error signing JWT:', tokErr);
             return res.status(500).json({ msg: 'Token generation failed' });
@@ -74,7 +78,22 @@ exports.register = async (req, res) => {
         res.status(201).json({ token, user: userRes });
 
     } catch (err) {
-        console.error("Registration Error:", err);
+        console.error("Registration Error - Full Details:");
+        console.error("Error Name:", err.name);
+        console.error("Error Message:", err.message);
+        console.error("Error Stack:", err.stack);
+        if (err.code) console.error("Error Code:", err.code);
+        if (err.errors) console.error("Validation Errors:", err.errors);
+        
+        // More specific error messages
+        if (err.code === 11000) {
+            return res.status(400).json({ msg: 'Email already exists' });
+        }
+        if (err.name === 'ValidationError') {
+            const messages = Object.values(err.errors).map(e => e.message);
+            return res.status(400).json({ msg: 'Validation Error: ' + messages.join(', ') });
+        }
+        
         res.status(500).json({ msg: `Server error: ${err.message}` });
     }
 };
