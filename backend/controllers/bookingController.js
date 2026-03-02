@@ -24,6 +24,9 @@ exports.createBooking = async (req, res) => {
         res.json(booking);
     } catch (err) {
         console.error(err.message);
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            return res.status(400).json({ msg: 'Invalid property id' });
+        }
         res.status(500).send('Server Error');
     }
 };
@@ -106,6 +109,9 @@ exports.updateBookingStatus = async (req, res) => {
         res.json(booking);
     } catch (err) {
         console.error(err.message);
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'Booking not found' });
+        }
         res.status(500).send('Server Error');
     }
 };

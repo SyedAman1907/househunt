@@ -8,7 +8,9 @@ exports.createProperty = async (req, res) => {
         }
 
         const { title, location, rentAmount, bedrooms, description } = req.body;
-        const image = req.file ? `http://localhost:5000/uploads/${req.file.filename}` : '';
+        // build URL dynamically so port/host changes don't break clients
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const image = req.file ? `${baseUrl}/uploads/${req.file.filename}` : '';
 
         const newProperty = new Property({
             title, location, rentAmount, bedrooms, description,
@@ -77,6 +79,9 @@ exports.updateProperty = async (req, res) => {
         res.json(property);
     } catch (err) {
         console.error(err.message);
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'Property not found' });
+        }
         res.status(500).send('Server Error');
     }
 };
@@ -96,6 +101,9 @@ exports.deleteProperty = async (req, res) => {
         res.json({ msg: 'Property removed' });
     } catch (err) {
         console.error(err.message);
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'Property not found' });
+        }
         res.status(500).send('Server Error');
     }
 };

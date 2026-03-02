@@ -28,6 +28,7 @@ exports.register = async (req, res) => {
             role, 
             mobile,
             address,
+            // store filename only; route will build URL when serving
             image: req.file ? req.file.filename : null,
             isApproved: role === 'owner' ? false : true // Owners need approval
         });
@@ -37,11 +38,21 @@ exports.register = async (req, res) => {
         const payload = { user: { id: user.id, role: user.role } };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-        res.status(201).json({ token, user: { id: user._id, email: user.email, role: user.role, isApproved: user.isApproved } });
+        // build image URL for client
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const userRes = {
+            id: user._id,
+            email: user.email,
+            role: user.role,
+            isApproved: user.isApproved
+        };
+        if (user.image) userRes.image = `${baseUrl}/uploads/${user.image}`;
+
+        res.status(201).json({ token, user: userRes });
 
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+        console.error("Registration Error:", err.message);
+        res.status(500).json({ msg: `Server error: ${err.message}` });
     }
 };
 
@@ -66,11 +77,19 @@ exports.login = async (req, res) => {
         const payload = { user: { id: user.id, role: user.role } };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-        res.json({ token, user: { id: user._id, email: user.email, role: user.role } });
+        // build response the same way as register
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const userRes = {
+            id: user._id,
+            email: user.email,
+            role: user.role
+        };
+        if (user.image) userRes.image = `${baseUrl}/uploads/${user.image}`;
+        res.json({ token, user: userRes });
 
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+        console.error("Login Error:", err.message);
+        res.status(500).json({ msg: `Server error: ${err.message}` });
     }
 };
 

@@ -35,6 +35,9 @@ exports.deleteProperty = async (req, res) => {
         res.json({ msg: 'Property removed' });
     } catch (err) {
         console.error(err.message);
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'Property not found' });
+        }
         res.status(500).send('Server Error');
     }
 };
@@ -46,6 +49,9 @@ exports.deleteUser = async (req, res) => {
         res.json({ msg: 'User removed' });
     } catch (err) {
         console.error(err);
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'User not found' });
+        }
         res.status(500).send('Server Error');
     }
 };
@@ -57,6 +63,9 @@ exports.approveOwner = async (req, res) => {
         res.json(user);
     } catch (err) {
         console.error(err.message);
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'Owner not found' });
+        }
         res.status(500).send('Server Error');
     }
 };
@@ -94,6 +103,9 @@ exports.approveProperty = async (req, res) => {
         res.json(property);
     } catch (err) {
         console.error(err);
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'Property not found' });
+        }
         res.status(500).send('Server Error');
     }
 };
