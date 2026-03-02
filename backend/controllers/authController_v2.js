@@ -3,16 +3,27 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/sendEmail');
 
+// helper to build base URL
+const getBaseUrl = (req) => `${req.protocol}://${req.get('host')}`;
+
 // Register User
 exports.register = async (req, res) => {
     try {
         const { email, password, role, name, mobile, address } = req.body;
-        console.log("Registration attempt for email:", email);
+        console.log("Registration attempt with data:", { email, role, name });
+
+        // Basic validation
+        if (!email || !password || !role || !name) {
+            return res.status(400).json({ msg: 'Email, password, role and name are required' });
+        }
+
+        // normalize email
+        const normalizedEmail = email.toLowerCase().trim();
 
         // Check if user exists
-        let user = await User.findOne({ email: email.toLowerCase().trim() });
+        let user = await User.findOne({ email: normalizedEmail });
         if (user) {
-            console.log("Match found in database for:", email);
+            console.log("Match found in database for:", normalizedEmail);
             return res.status(400).json({ msg: 'User already exists' });
         }
 
@@ -36,7 +47,19 @@ exports.register = async (req, res) => {
         await user.save();
 
         const payload = { user: { id: user.id, role: user.role } };
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            console.error('JWT_SECRET not defined in environment');
+            return res.status(500).json({ msg: 'Server configuration error' });
+        }
+
+        let token;
+        try {
+            token = jwt.sign(payload, secret, { expiresIn: '1d' });
+        } catch (tokErr) {
+            console.error('Error signing JWT:', tokErr);
+            return res.status(500).json({ msg: 'Token generation failed' });
+        }
 
         // build image URL for client
         const baseUrl = `${req.protocol}://${req.get('host')}`;
@@ -51,7 +74,7 @@ exports.register = async (req, res) => {
         res.status(201).json({ token, user: userRes });
 
     } catch (err) {
-        console.error("Registration Error:", err.message);
+        console.error("Registration Error:", err);
         res.status(500).json({ msg: `Server error: ${err.message}` });
     }
 };
@@ -60,6 +83,11 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        console.log('Login attempt for:', email);
+
+        if (!email || !password) {
+            return res.status(400).json({ msg: 'Email and password are required' });
+        }
 
         // Check User
         let user = await User.findOne({ email: email.toLowerCase().trim() });
@@ -75,7 +103,18 @@ exports.login = async (req, res) => {
         }
 
         const payload = { user: { id: user.id, role: user.role } };
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            console.error('JWT_SECRET not defined in environment');
+            return res.status(500).json({ msg: 'Server configuration error' });
+        }
+        let token;
+        try {
+            token = jwt.sign(payload, secret, { expiresIn: '1d' });
+        } catch (tokErr) {
+            console.error('Error signing JWT:', tokErr);
+            return res.status(500).json({ msg: 'Token generation failed' });
+        }
 
         // build response the same way as register
         const baseUrl = `${req.protocol}://${req.get('host')}`;
@@ -88,7 +127,7 @@ exports.login = async (req, res) => {
         res.json({ token, user: userRes });
 
     } catch (err) {
-        console.error("Login Error:", err.message);
+        console.error("Login Error:", err);
         res.status(500).json({ msg: `Server error: ${err.message}` });
     }
 };
@@ -97,7 +136,10 @@ exports.login = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
     console.log("Forgot Password Request Received for:", req.body.email); // DEBUG LOG
     try {
-        const user = await User.findOne({ email: req.body.email });
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ msg: 'Email is required' });
+
+        const user = await User.findOne({ email: email.toLowerCase().trim() });
         if (!user) return res.status(404).json({ msg: 'User not found' });
 
         // Generate 6-digit OTP
@@ -136,9 +178,12 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
     try {
         const { email, otp, password } = req.body;
+        if (!email || !otp || !password) {
+            return res.status(400).json({ msg: 'Email, OTP and new password are required' });
+        }
 
         const user = await User.findOne({
-            email,
+            email: email.toLowerCase().trim(),
             otp,
             otpExpire: { $gt: Date.now() }
         });
